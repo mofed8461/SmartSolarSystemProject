@@ -5,7 +5,7 @@ String ssid = "Solar Control";
 
 WiFiServer server(80);
 
-SoftwareSerial mySerial(4,5);
+SoftwareSerial mySerial(14, 2);
 
 void setupWiFi(String password)
 {
@@ -78,48 +78,14 @@ void loop() {
 
 float readFloat()
 {
-//  Serial.println("ooo");
-//  //mySerial.flush();
-//  
-//  byte x[4];
-//
-//  char idString[] = "mofeed";
-//  int counter = 0;
-//  
-//  while (true)
-//  {
-//    while (mySerial.available() == 0)
-//      delay(1);
-//
-//    if (counter == 6)
-//    {
-//      Serial.println("found 6");
-//      break;
-//    }
-//    else if (mySerial.read() == idString[counter])
-//    {
-//      Serial.println("found " + idString[counter]);
-//      counter++;
-//      continue;
-//    }
-//    else
-//    {
-//      Serial.println("reset .. counter");
-//      counter = 0;
-//    }
-//  }
-//
-//  while (mySerial.available() == 0)
-//      delay(1);
-//      
-//  
-//  for (int i = 0; i < 4; ++i)
-//  {
-//    while (mySerial.available() == 0)
-//      delay(1);
-//      
-//    x[i] = mySerial.read();
-//  }
+  mySerial.flush();
+  while (mySerial.available() == 0)
+      delay(1);
 
-  return mySerial.read() / 5;
+
+  int xxxx = mySerial.read();
+  float yyyy = xxxx / 51.0f;
+  Serial.println("xx: " + String(xxxx));
+  Serial.println("yy: " + String(yyyy));
+  return yyyy;
 }

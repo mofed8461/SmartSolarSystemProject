@@ -11,7 +11,6 @@ class Screens extends Component {
     currentScreen: 'Home',
     connected: false,
     timerID: null,
-    counter: 0,
     voltage: 0,
     wattsPerMin: [],
     wattsPerHour: [],
@@ -21,6 +20,8 @@ class Screens extends Component {
 
   async componentDidMount()
   {
+    this.counter = 0;
+
     try 
     {
       if (await AsyncStorage.getItem('firstTime') == 'true')
@@ -57,7 +58,7 @@ class Screens extends Component {
     for (var i = 0; i < 6; i++)
       avg += this.state.wattsPerMin[i];
 
-    return avg;
+    return avg / 6.0;
   }
 
   getAvgHour()
@@ -66,7 +67,7 @@ class Screens extends Component {
     for (var i = 0; i < 6 * 60; i++)
       avg += this.state.wattsPerHour[i];
       
-    return avg;
+    return avg / (6.0 * 60.0);
   }
 
   getAvgMDay()
@@ -75,7 +76,7 @@ class Screens extends Component {
     for (var i = 0; i < 6 * 6 * 24; i++)
       avg += this.state.wattsPerDay[i * 10];
       
-    return avg;
+    return avg / (6 * 6 * 24.0);
   }
 
   getAvgMWeek()
@@ -84,7 +85,7 @@ class Screens extends Component {
     for (var i = 0; i < 6 * 6 * 24 * 7; i++)
       avg += this.state.wattsPerWeek[i];
       
-    return avg;
+    return avg / (6 * 6 * 24 * 7.0);
   }
 
   getAvgMonth()
@@ -110,7 +111,7 @@ class Screens extends Component {
   {
     var timerID = setInterval(() => {
       console.log('loop');
-      this.ffetch('http://192.168.4.1/u')
+      this.ffetch('http://192.168.4.1/c')
       .then((response) => response.text())
       .then((responseJson) => {
         console.log(JSON.stringify(responseJson));
@@ -131,12 +132,10 @@ class Screens extends Component {
         }
       })
       .then((response) => response.text())
-      .then((voltage) => {
+      .then(async (voltage) => {
         console.log(JSON.stringify(voltage));
         
-        return this.logic(voltage);
-      }).then(() => {
-        console.log('done update');
+        await this.logic(voltage);
       }).catch((error) => {
 
         console.log('error: ' + JSON.stringify(error));
@@ -232,9 +231,8 @@ class Screens extends Component {
 
   async logic(voltage)
   {
+    console.log('ll1');
     var watts = voltage * 0.166;
-
-    var wattsPerMin = this.state.wattsPerMin;
 
     var stateCopy = this.state;
 
@@ -249,16 +247,19 @@ class Screens extends Component {
       Alert.alert('', 'Low voltage');
     }
 
-    stateCopy.wattsPerMin[counter % stateCopy.wattsPerMin.length] = watts;
-    stateCopy.wattsPerHour[counter % stateCopy.wattsPerHour.length] = watts;
-    stateCopy.wattsPerDay[counter % stateCopy.wattsPerDay.length] = watts;
-    stateCopy.wattsPerWeek[counter % stateCopy.wattsPerWeek.length] = watts;
+
+    stateCopy.wattsPerMin[this.counter % stateCopy.wattsPerMin.length] = watts;
+    stateCopy.wattsPerHour[this.counter % stateCopy.wattsPerHour.length] = watts;
+    stateCopy.wattsPerDay[this.counter % stateCopy.wattsPerDay.length] = watts;
+    stateCopy.wattsPerWeek[this.counter % stateCopy.wattsPerWeek.length] = watts;
+    console.log('ll2');
 
     this.setState(stateCopy);
-
+    console.log('ll3');
     this.counter++;
 
     await AsyncStorage.setItem('state', JSON.stringify(this.state));
+    console.log('ll4');
   }
 }
 

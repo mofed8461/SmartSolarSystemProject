@@ -44,13 +44,15 @@ void loop() {
   westLDR = analogRead(wLDRPin);
 
   // read the value at analog input
-  value = analogRead(analogInput);
-  vout = (value * 5.0) / 1024.0; // see text
-  vin = vout / (R2/(R1+R2)); 
-  if (vin<0.09) 
-  {
-    vin=0.0;//statement to quash undesired reading !  
-  } 
+//  value = analogRead(analogInput);
+//  vout = (value * 5.0) / 1024.0; // see text
+//  vin = vout / (R2/(R1+R2)); 
+//  if (vin<0.09) 
+//  {
+//    vin=0.0;//statement to quash undesired reading !  
+//  } 
+
+  vin = (analogRead(analogInput) / 1024.0f) * 5.0f;
   
   u8g.firstPage();  
   do 
@@ -109,7 +111,9 @@ void writeFloat(float x)
 //  char idString[] = "mofeed";
 //  
 //  mySerial.write((uint8_t*)&idString[0], 6);
-  uint8_t xxxx = x * 5;
-  
-  mySerial.write(xxxx);
+
+  Serial.println("voltage:" + String(x));
+  uint8_t y = x * 51;
+  Serial.println("enc:" + String(y));
+  mySerial.write(y);
 }
